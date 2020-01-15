@@ -60,7 +60,7 @@ services:
       - POSTGRES_PASSWORD=!ChangeMe!
       - POSTGRES_USER=api-platform
     volumes:
-      #- db-data:/var/lib/postgresql/data:rw
+#      - db-data:/var/lib/postgresql/data:rw
       # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
        - ./api/docker/db/data:/var/lib/postgresql/data:rw
     ports:
@@ -133,6 +133,26 @@ services:
       - target: 80
         published: 80
         protocol: tcp
+
+  socket:
+    # Use a static website hosting service in production
+    # See https://facebook.github.io/create-react-app/docs/deployment
+    image: ${ADMIN_IMAGE:-quay.io/api-platform/socket}
+    build:
+      context: ./socket
+      cache_from:
+        - {ADMIN_IMAGE:-quay.io/api-platform/socket}
+    env_file:
+      - ./socket/.env
+    volumes:
+      - ./socket:/usr/src/server:rw,cached
+      - /usr/src/server/node_modules
+    ports:
+      - "3000:8000"
+    devices:
+      - "/dev/ttyUSB1"
+      - "/dev/ttyUSB0"
+    privileged: true
 
 volumes:
   db-data: {}
