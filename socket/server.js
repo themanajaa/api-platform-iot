@@ -2,7 +2,6 @@ const io = require('socket.io')();
 var SerialPort = require('serialport');
 var xbee_api = require('xbee-api');
 var C = xbee_api.constants;
-var padManager = require('./pad/padmanager');
 
 var xbeeAPI = new xbee_api.XBeeAPI({
   api_mode: 2
@@ -57,63 +56,18 @@ xbeeAPI.parser.on("data", function (frame) {
       data: dataReceived
     });
   }
-  this.onPadNeedShuttdown = function (pad) {
-    if (pad.button1 && pad.button2 && pad.button3 && pad.button4) {
-      var frame_obj = { // AT Request to be sent
-        type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
-        destination64: pad.remote64,
-        command: "SM",
-        commandParameter: [5],
-      };
-
-
-      xbeeAPI.builder.write(frame_obj);
-    } else {
-      var frame_obj = { // AT Request to be sent
-        type: C.FRAME_TYPE.REMOTE_AT_COMMAND_REQUEST,
-        destination64: pad.remote64,
-        command: "SM",
-        commandParameter: [0],
-      };
-
-
-      xbeeAPI.builder.write(frame_obj);
-    }
-
-  }
 
   if (C.FRAME_TYPE.NODE_IDENTIFICATION === frame.type) {
     // let dataReceived = String.fromCharCode.apply(null, frame.nodeIdentifier);
     // console.log(">> ZIGBEE_RECEIVE_PACKET >", frame);
-    padManager.onPadIdentification(frame).then((pad) => {
-      console.log(pad)
-      browserClient && browserClient.emit('pad-register', {
-        device: pad.remote64,
-        name: frame.nodeIdentifier
-      });
-    });
+
 
   } else if (C.FRAME_TYPE.ZIGBEE_IO_DATA_SAMPLE_RX === frame.type) {
 
-    padManager.onPadButtonChanged(frame).then((pad) => {
-        console.log(pad);
-        browserClient && browserClient.emit('pad-event', {
-          pad
-        });
-      },
-      (error) => {
-        console.error(error);
-      });
 
-    this.onPadNeedShuttdown(frame)
 
   } else if (C.FRAME_TYPE.REMOTE_COMMAND_RESPONSE === frame.type) {
-    padManager.onPadIdentification(frame).then((pad) => {
-      browserClient && browserClient.emit('pad-register', {
-        device: pad.remote64,
-        name: frame.nodeIdentifier
-      });
-    });
+    
   } else {
     console.debug(frame);
     let dataReceived = String.fromCharCode.apply(null, frame.commandData)

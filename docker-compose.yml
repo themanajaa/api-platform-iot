@@ -141,7 +141,7 @@ services:
     build:
       context: ./socket
       cache_from:
-        - {ADMIN_IMAGE:-quay.io/api-platform/socket}
+        - ${ADMIN_IMAGE:-quay.io/api-platform/socket}
     env_file:
       - ./socket/.env
     volumes:
