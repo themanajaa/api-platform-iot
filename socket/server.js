@@ -10,7 +10,7 @@ var xbeeAPI = new xbee_api.XBeeAPI({
 });
 
 let serialport = new SerialPort(SERIAL_PORT, {
-  baudRate: 9600,
+  baudRate: process.env.SERIAL_BAUDRATE || 9600,
 }, function (err) {
   if (err) {
     return console.log('Error: ', err.message)
