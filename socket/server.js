@@ -1,8 +1,9 @@
 var SerialPort = require('serialport');
 var xbee_api = require('xbee-api');
 var C = xbee_api.constants;
+require('dotenv').config()
 
-const SERIAL_PORT = "/dev/ttyUSB1";
+const SERIAL_PORT = process.env.SERIAL_PORT;
 
 var xbeeAPI = new xbee_api.XBeeAPI({
   api_mode: 2
