@@ -8,7 +8,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "serialport": "^7.1.5",
-    "socket.io": "^1.4.8",
+    "socket.io": "^2.4.0",
     "xbee": "^0.0.4",
     "xbee-api": "^0.6.0"
   },
