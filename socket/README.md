@@ -11,3 +11,7 @@ This sample code give the base for Zigbee communication experimentations
     $sudo usermod -a -G dialout yourUserName
 
 * Connect the coordinator to your computer and launch server.js with `yarn start`
+
+# Configure Firebase
+* https://firebase.google.com/docs/firestore/quickstart
+* Create a file `serviceAccountKey.json` at the root folder

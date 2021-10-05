@@ -3,7 +3,7 @@
 
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG NODE_VERSION=13
+ARG NODE_VERSION=15.9
 ARG NGINX_VERSION=1.17
 
 
