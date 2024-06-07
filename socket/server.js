@@ -34,36 +34,64 @@ frame_obj_led = (pin, value) => { // AT Request to be sent
   }
 };
 
+var lastValues = {
+  red: null,
+  green: null,
+  blue: null
+};
+
 var led = (color, value) => {
   if (typeof value === 'undefined') {
     console.error('Invalid arguments provided');
     return;
   }
-  client.publish(color, value.toString())
-  console.log(color, value)
-}
 
-var led_change = (message) => {
-  value = parseInt(message)
-  if(value <= 600){
-    xbeeAPI.builder.write(frame_obj_led("D0", "04"));
-    xbeeAPI.builder.write(frame_obj_led("D1", "05"));
-    xbeeAPI.builder.write(frame_obj_led("D2", "05"));
-  }else if(value > 600 && value < 1200){
-    xbeeAPI.builder.write(frame_obj_led("D0", "05"));
-    xbeeAPI.builder.write(frame_obj_led("D1", "04"));
-    xbeeAPI.builder.write(frame_obj_led("D2", "05"));
-  }else if(value >= 1200){
-    xbeeAPI.builder.write(frame_obj_led("D0", "05"));
-    xbeeAPI.builder.write(frame_obj_led("D1", "05"));
-    xbeeAPI.builder.write(frame_obj_led("D2", "04"));
+  // Vérifie si la nouvelle valeur est différente de la dernière valeur envoyée
+  if (lastValues[color] !== value) {
+    client.publish(color, value.toString());
+    console.log(color, value);
+    // Met à jour la dernière valeur envoyée pour cette couleur
+    lastValues[color] = value;
   }
-}
+};
+
+var new_state = "";
+var lastState = "";
+
+var led_change = (message, new_state) => {
+  var value = parseInt(message);
+  if (value <= 600) {
+    new_state = "red";
+  } else if (value > 600 && value < 1200) {
+    new_state = "green";
+  } else if (value >= 1200) {
+    new_state = "blue";
+  }
+
+  if (new_state !== lastState) {
+    if (new_state === "red") {
+      xbeeAPI.builder.write(frame_obj_led("D0", "04"));
+      xbeeAPI.builder.write(frame_obj_led("D1", "05"));
+      xbeeAPI.builder.write(frame_obj_led("D2", "05"));
+    } else if (new_state === "green") {
+      xbeeAPI.builder.write(frame_obj_led("D0", "05"));
+      xbeeAPI.builder.write(frame_obj_led("D1", "04"));
+      xbeeAPI.builder.write(frame_obj_led("D2", "05"));
+    } else if (new_state === "blue") {
+      xbeeAPI.builder.write(frame_obj_led("D0", "05"));
+      xbeeAPI.builder.write(frame_obj_led("D1", "05"));
+      xbeeAPI.builder.write(frame_obj_led("D2", "04"));
+    }
+    lastState = new_state;
+  }
+};
+
 
 client.on('message', function(topic, message) {
   if(topic == "esiee_it-RGB1"){
-    led_change(message)
+    led_change(message, new_state)
   }
+  
   console.log(topic, message.toString())
   //client.end()
 })
@@ -108,7 +136,6 @@ serialport.on("open", function () {
 // All frames parsed by the XBee will be emitted here
 
 // storage.listSensors().then((sensors) => sensors.forEach((sensor) => console.log(sensor.data())))
-let lastValue;
 
 xbeeAPI.parser.on("data", function (frame) {
 
