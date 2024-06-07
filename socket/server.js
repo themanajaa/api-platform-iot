@@ -55,41 +55,42 @@ var led = (color, value) => {
   }
 };
 
-var new_state = "";
-var lastState = "";
-
-var led_change = (message, new_state) => {
+let state = "";
+var led_change = (message, state) => {
   var value = parseInt(message);
-  if (value <= 600) {
-    new_state = "red";
+  if(value === 0){
+    state = "off";
+  }else if (value > 0 && value <= 600) {
+    state = "red";
   } else if (value > 600 && value < 1200) {
-    new_state = "green";
+    state = "green";
   } else if (value >= 1200) {
-    new_state = "blue";
+    state = "blue";
   }
 
-  if (new_state !== lastState) {
-    if (new_state === "red") {
-      xbeeAPI.builder.write(frame_obj_led("D0", "04"));
-      xbeeAPI.builder.write(frame_obj_led("D1", "05"));
-      xbeeAPI.builder.write(frame_obj_led("D2", "05"));
-    } else if (new_state === "green") {
-      xbeeAPI.builder.write(frame_obj_led("D0", "05"));
-      xbeeAPI.builder.write(frame_obj_led("D1", "04"));
-      xbeeAPI.builder.write(frame_obj_led("D2", "05"));
-    } else if (new_state === "blue") {
-      xbeeAPI.builder.write(frame_obj_led("D0", "05"));
-      xbeeAPI.builder.write(frame_obj_led("D1", "05"));
-      xbeeAPI.builder.write(frame_obj_led("D2", "04"));
-    }
-    lastState = new_state;
+  if(state === "off"){
+    xbeeAPI.builder.write(frame_obj_led("D0", "05"));
+    xbeeAPI.builder.write(frame_obj_led("D1", "05"));
+    xbeeAPI.builder.write(frame_obj_led("D2", "05"));
+  }else if (state === "red") {
+    xbeeAPI.builder.write(frame_obj_led("D0", "04"));
+    xbeeAPI.builder.write(frame_obj_led("D1", "05"));
+    xbeeAPI.builder.write(frame_obj_led("D2", "05"));
+  } else if (state === "green") {
+    xbeeAPI.builder.write(frame_obj_led("D0", "05"));
+    xbeeAPI.builder.write(frame_obj_led("D1", "04"));
+    xbeeAPI.builder.write(frame_obj_led("D2", "05"));
+  } else if (state === "blue") {
+    xbeeAPI.builder.write(frame_obj_led("D0", "05"));
+    xbeeAPI.builder.write(frame_obj_led("D1", "05"));
+    xbeeAPI.builder.write(frame_obj_led("D2", "04"));
   }
 };
 
 
 client.on('message', function(topic, message) {
   if(topic == "esiee_it-RGB1"){
-    led_change(message, new_state)
+    led_change(message, state)
   }
   
   console.log(topic, message.toString())
